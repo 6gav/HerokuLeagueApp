@@ -5,7 +5,7 @@ module.exports.registerPaths = function(app){
     //Summoner lookup
     app.post('/api/GetSummoner', (req, res) => {
         lookup.GetSummoner(req.body.SummonerName, (data) => {
-            console.log(data);
+            res.send(data);
         });
     });
 

@@ -33,16 +33,26 @@ var exports = module.exports = {}
 
 //Called when /api/GetSummoner is posted to
 exports.GetSummoner = function(name, cb){
+    GetSummoner(name, (player) => {
+        player = player.data;
+        GetMastery(player, 3, (mastery) => {
+            var summoner = {
+                SummonerName: player.name,
+                IconID: player.profileIconId,
+                Level: player.summonerLevel,
+                ID: player.id,
+                champions: mastery.champions
+            };
+            cb(summoner);
+        });
+    });
+}
+
+
+function GetSummoner(name, cb){
     axios.get(SummonerByName + name, {headers:headers})
     .then(res => {
-        data = res.data;
-        summoner = {
-            SummonerName: data.name,
-            IconID: data.profileIconId,
-            Level: data.summonerLevel,
-            ID: data.id
-        }
-        GetMastery(summoner, (data) => {cb(Object.assign({}, summoner, data))})
+        cb(res);
     })
     .catch(err => {
         console.log(err);
@@ -50,12 +60,10 @@ exports.GetSummoner = function(name, cb){
 }
 
 
-
-
-function GetMastery(summoner, cb){
-    axios.get(MasteryListById + summoner.ID, {headers:headers})
+function GetMastery(summoner, count, cb){
+    axios.get(MasteryListById + summoner.id, {headers:headers})
     .then(res => {
-        var championList = res.data.slice(0, 3);
+        var championList = res.data.slice(0, count);
         cb({champions: championList});
     })
     .catch(err => {
